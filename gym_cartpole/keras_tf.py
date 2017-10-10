@@ -61,7 +61,7 @@ def main(max_episodes, print_log_episodes=20):
     env = gym.make('CartPole-v0')
 
     keyboard_input = KeyboardCtrlC()
-    transitions = collections.deque(maxlen=1000)
+    transitions = collections.deque(maxlen=10000)
     episodes = collections.deque(maxlen=100)
     start_time = time.time()
 
@@ -70,10 +70,10 @@ def main(max_episodes, print_log_episodes=20):
     for episode in range(max_episodes):
         observation = env.reset()
 
-        for iteration in range(300):
+        for iteration in range(201): # iteration stops at 199 because done == True
             old_observation = observation
 
-            epsilon = max(0.1, 0.7 * pow(0.985, episode))
+            epsilon = max(0.025, 0.7 * pow(0.99, episode))
 
             if np.random.random() < epsilon:
                 action = np.random.choice(range(2))
@@ -84,16 +84,38 @@ def main(max_episodes, print_log_episodes=20):
             observation, reward, done, info = env.step(action)
 
             if done and iteration < 199:
-                reward = -100 # we failed, punish when game ends too early
+                reward = -50 # we failed, punish when game ends too early
 
             transitions.append([old_observation, action, reward, observation])
 
-            if done:
-                break
+            minibatch_size = 32
+            if len(transitions) >= minibatch_size*4 and iteration % 10 == 0:
+                sample_transitions = np.array(random.sample(transitions, minibatch_size))
+
+                train_x = np.array([np.array(x) for x in sample_transitions[:,0]])
+                train_y = model.predict(train_x)
+
+                next_state_x = np.array([np.array(x) for x in sample_transitions[:,3]])
+                next_state_value_y = model.predict(next_state_x)
+
+                for idx, arr in enumerate(sample_transitions):
+                    state, action, reward, next_state = arr
+
+                    if reward > 0: # normal round, add discounted future reward
+                        gamma = 0.99
+                        reward += gamma * next_state_value_y[idx].max()
+
+                    train_y[idx, action] = reward
+
+                # note that keras model hides the original train_y, so we are doing the predicting again
+                model.fit(train_x, train_y, batch_size=minibatch_size, epochs=1, verbose=0, shuffle=False)
 
             if keyboard_input.key_pressed:
                 print("Started python console. Quit with 'ctrl-d' or continue with 'c'")
                 import ipdb; ipdb.set_trace()
+
+            if done:
+                break
 
         episodes.append(iteration)
         if episode % print_log_episodes == 0:
@@ -102,30 +124,9 @@ def main(max_episodes, print_log_episodes=20):
             print('SOLVED AT EPISODE {}, time: {:.2f}s'.format(episode, time.time()-start_time))
             return episode
 
-        minibatch_size = 128
-        if len(transitions) >= minibatch_size:
-            sample_transitions = random.sample(transitions, minibatch_size)
-            sample_transitions = np.array(sample_transitions)
-
-            train_x = np.array([np.array(x) for x in sample_transitions[:,0]])
-            train_y = model.predict(train_x)
-
-            next_state_x = np.array([np.array(x) for x in sample_transitions[:,3]])
-            next_state_value_y = model.predict(next_state_x)
-
-            for idx, arr in enumerate(sample_transitions):
-                state, action, reward, next_state = arr
-
-                if reward > 0: # normal round, add discounted future reward
-                    gamma = 0.99
-                    reward += gamma * np.max(next_state_value_y[idx])
-
-                train_y[idx, action] = reward
-
-            model.fit(np.array(train_x), np.array(train_y), epochs=1, verbose=0)
 
 if __name__ == "__main__":
     results = []
-    main(600)
+    main(800)
     print("Keras done")
 
