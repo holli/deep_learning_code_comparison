@@ -1,3 +1,4 @@
+# TensorFlow implementation, run with "python tf.py"
 
 import gym
 import numpy as np
@@ -34,6 +35,7 @@ def main(max_episodes=800, print_log_episodes=20):
     episodes = collections.deque(maxlen=100)
     start_time = time.time()
 
+    # Get model definition and define network related items
     tf.reset_default_graph()
     x_ph = tf.placeholder(tf.float32, [None, 4], name='x_ph')
     y_results = get_model(x_ph)
@@ -54,7 +56,7 @@ def main(max_episodes=800, print_log_episodes=20):
             if np.random.random() < epsilon:
                 action = np.random.choice(range(2))
             else:
-                # action is integer, either 0 or 1
+                # Evaluate the right action, either 0 or 1
                 action = np.argmax(sess.run([y_results], feed_dict={x_ph: np.expand_dims(old_observation, 0)})[0])
 
             observation, reward, done, info = env.step(action)
@@ -64,12 +66,13 @@ def main(max_episodes=800, print_log_episodes=20):
 
             transitions.append([old_observation, action, reward, observation])
 
+            # Training of the network, first calculate future reward and then train the network
             minibatch_size = 64
             if len(transitions) >= minibatch_size*4 and iteration % 10 == 0:
                 sample_transitions = np.array(random.sample(transitions, minibatch_size))
 
                 train_x = np.array([np.array(x) for x in sample_transitions[:,0]])
-                train_y = sess.run([y_results], feed_dict={x_ph: train_x})[0]
+                train_y_target = sess.run([y_results], feed_dict={x_ph: train_x})[0]
 
                 next_state_x = np.array([np.array(x) for x in sample_transitions[:,3]])
                 next_state_value_y = sess.run([y_results], feed_dict={x_ph: next_state_x})[0]
@@ -81,9 +84,9 @@ def main(max_episodes=800, print_log_episodes=20):
                         gamma = 0.99
                         reward += gamma * next_state_value_y[idx].max()
 
-                    train_y[idx, action] = reward
+                    train_y_target[idx, action] = reward
 
-                _, loss = sess.run([train_op, loss_op], feed_dict={x_ph: train_x, y_targets_ph: train_y})
+                _, loss = sess.run([train_op, loss_op], feed_dict={x_ph: train_x, y_targets_ph: train_y_target})
 
             if keyboard_input.key_pressed:
                 print("Started python console. Quit with 'ctrl-d' or continue with 'c'")

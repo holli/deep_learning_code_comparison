@@ -1,4 +1,4 @@
-# Pytorch implementation, will return about the following:
+# Pytorch implementation, run with "python pytorch.py"
 
 
 import gym
@@ -10,8 +10,6 @@ import time
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torchvision
 from torch.autograd import Variable
 
 class KeyboardCtrlC:
@@ -43,6 +41,7 @@ def main(max_episodes=800, print_log_episodes=20):
     episodes = collections.deque(maxlen=100)
     start_time = time.time()
 
+    # Get model definition and define network related items
     model = get_model().double()#.cuda()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     loss_op = torch.nn.MSELoss()
@@ -58,7 +57,7 @@ def main(max_episodes=800, print_log_episodes=20):
             if np.random.random() < epsilon:
                 action = np.random.choice(range(2))
             else:
-                # action is integer, either 0 or 1
+                # Evaluate the right action, either 0 or 1
                 x = Variable(torch.from_numpy(np.expand_dims(old_observation, 0)), volatile=True)#.cuda()
                 action = model(x)[0].max(0)[1].data[0] # same as np.argmax(model(x)[0].data.numpy()) but works both for cpu and gpu
 
@@ -69,6 +68,7 @@ def main(max_episodes=800, print_log_episodes=20):
 
             transitions.append([old_observation, action, reward, observation])
 
+            # Training of the network, first calculate future reward and then train the network
             minibatch_size = 64
             if len(transitions) >= minibatch_size*4 and iteration % 10 == 0:
                 sample_transitions = np.array(random.sample(transitions, minibatch_size))
@@ -76,12 +76,12 @@ def main(max_episodes=800, print_log_episodes=20):
                 train_x = np.array([np.array(x) for x in sample_transitions[:,0]])
                 train_x = Variable(torch.from_numpy(train_x))#.cuda()
                 train_y = model(train_x)
+                train_y_target = train_y.clone().detach()
 
                 next_state_x = np.array([np.array(x) for x in sample_transitions[:,3]])
                 next_state_x = Variable(torch.from_numpy(next_state_x), volatile=True)#.cuda()
                 next_state_value_y = model(next_state_x)
 
-                train_y_target = train_y.clone().detach()
                 for idx, arr in enumerate(sample_transitions):
                     state, action, reward, next_state = arr
 

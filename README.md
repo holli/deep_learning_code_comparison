@@ -1,20 +1,17 @@
 # Deep learning frameworks from coders perspective
 
-This repository includes sample python notebooks for some common usecases for various deep learning frameworks. Notebooks were done from the viewpoint of incrementally solving a specific problems. E.g. after defining a model there is a test that the code works by running on predicition instead of just trusting that the code is right.
+This repository includes sample python codes and notebooks for some common usecases for various deep learning frameworks. Notebooks were done from the viewpoint of incrementally solving a specific problems. E.g. after defining a model there is a test that the code works by running on predicition instead of just trusting that the code is right.
 
-## Simple mnist cnn network example
+
+## Mnist cnn image classification example
 
 - Load mnist data
   - Show some samples
 - Define simple cnn model
-  - Test the code
-  - Train the model and print progress information
-  - Test the accuracy of the model
+  - Test the code - Train the model and print progress information - Test the accuracy of the model
   - Use gpu for calculations
 - Persist the work for future use
-  - Save the model
-  - Load the model
-  - Predict one image with the loaded model
+  - Save the model - Load the model - Predict one image with the loaded model
 
 **Different frameworks**
 
@@ -29,7 +26,30 @@ This repository includes sample python notebooks for some common usecases for va
   - Pytorch is simple to customize because everything is very dynamic. test_model_accuracy can include calculations inside the function. Model is used by calling it like any other python function.
   - Whereas in TensorFlow the accuracy related graph had to be defined before initialization. Interaction with the model goes through `sess.run(op, feed_dict)`
 
-## What to pay attention to while looking through the notebooks
+
+## Openai gym cartople reinforcement (qdn) example
+
+- Small network that can learn to solve CartPole environment with reinforcement learning
+  - https://gym.openai.com/envs/CartPole-v0/
+- Code is supposed to be clear and generalizable. Not the most optimized reinforcement learning for this problem.
+
+**Different frameworks**
+
+- Pytorch
+  - https://github.com/holli/deep_learning_code_comparison/blob/master/gym_cartpole/pytorch.py
+- TensorFlow
+  - https://github.com/holli/deep_learning_code_comparison/blob/master/gym_cartpole/tf.py
+- Keras and TensorFlow
+  - https://github.com/holli/deep_learning_code_comparison/blob/master/gym_cartpole/keras_tf.py
+- Specific notes
+  - These code differences might be easiest to see by using file diff (or diff view in an IDE)
+  - Codes are quite similar to each other. Keras is once again simplest to read.
+  - Here Pytorch was easiest to "optimize". Other frameworks evaluate the train_x twice, once for getting train_y values and once just before the training.
+  - TensorFlow version could be optimized by taking train_y_target (target rewards) wholly inside the graph but it would be complicated to code.  
+
+
+
+## What to pay attention to while looking through the code/notebooks
 
 Keras feels the most beginner coder friendly. It's nice that when you are defining the model you don't have to calculate the layer's input sizes manually. Fitting prints nice progress to the notebook. Saving and loading a model is straight forward.
 
