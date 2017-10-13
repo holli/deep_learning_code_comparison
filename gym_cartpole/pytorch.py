@@ -35,7 +35,7 @@ def get_model(obs=4):
     return model
 
 
-def main(max_episodes, print_log_episodes=20):
+def main(max_episodes=800, print_log_episodes=20):
     env = gym.make('CartPole-v0')
 
     keyboard_input = KeyboardCtrlC()
@@ -69,7 +69,7 @@ def main(max_episodes, print_log_episodes=20):
 
             transitions.append([old_observation, action, reward, observation])
 
-            minibatch_size = 32
+            minibatch_size = 64
             if len(transitions) >= minibatch_size*4 and iteration % 10 == 0:
                 sample_transitions = np.array(random.sample(transitions, minibatch_size))
 
@@ -112,7 +112,4 @@ def main(max_episodes, print_log_episodes=20):
 
 
 if __name__ == "__main__":
-    results = []
-    result = main(1000)
-    print("Pytorch done")
-
+    main()

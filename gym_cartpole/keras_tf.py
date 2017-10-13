@@ -57,7 +57,7 @@ def get_model(obs=4, learning_rate=0.01):
     return model
 
 
-def main(max_episodes, print_log_episodes=20):
+def main(max_episodes=800, print_log_episodes=20):
     env = gym.make('CartPole-v0')
 
     keyboard_input = KeyboardCtrlC()
@@ -88,7 +88,7 @@ def main(max_episodes, print_log_episodes=20):
 
             transitions.append([old_observation, action, reward, observation])
 
-            minibatch_size = 32
+            minibatch_size = 64
             if len(transitions) >= minibatch_size*4 and iteration % 10 == 0:
                 sample_transitions = np.array(random.sample(transitions, minibatch_size))
 
@@ -101,7 +101,7 @@ def main(max_episodes, print_log_episodes=20):
                 for idx, arr in enumerate(sample_transitions):
                     state, action, reward, next_state = arr
 
-                    if reward > 0: # normal round, add discounted future reward
+                    if reward > 0: # game did not end, add discounted future reward
                         gamma = 0.99
                         reward += gamma * next_state_value_y[idx].max()
 
@@ -126,7 +126,4 @@ def main(max_episodes, print_log_episodes=20):
 
 
 if __name__ == "__main__":
-    results = []
-    main(800)
-    print("Keras done")
-
+    main()
