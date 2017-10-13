@@ -8,10 +8,9 @@ This repository includes sample python codes and notebooks for some common useca
 - Load mnist data
   - Show some samples
 - Define simple cnn model
-  - Test the code - Train the model and print progress information - Test the accuracy of the model
-  - Use gpu for calculations
+  - Test the code ... Train the model and print progress information ... Test the accuracy of the model
 - Persist the work for future use
-  - Save the model - Load the model - Predict one image with the loaded model
+  - Save the model ... Load the model ... Predict one image with the loaded model
 
 **Different frameworks**
 
@@ -24,7 +23,7 @@ This repository includes sample python codes and notebooks for some common useca
 - Specific notes
   - Keras shows all the basic info nicely by default.
   - Pytorch is simple to customize because everything is very dynamic. test_model_accuracy can include calculations inside the function. Model is used by calling it like any other python function.
-  - Whereas in TensorFlow the accuracy related graph had to be defined before initialization. Interaction with the model goes through `sess.run(op, feed_dict)`
+  - Whereas in TensorFlow the accuracy related graph had to be defined before initialization. Interaction with the model goes through `sess.run(op, feed_dict)`
 
 
 ## Openai gym cartople reinforcement (qdn) example
@@ -45,7 +44,7 @@ This repository includes sample python codes and notebooks for some common useca
   - These code differences might be easiest to see by using file diff (or diff view in an IDE)
   - Codes are quite similar to each other. Keras is once again simplest to read.
   - Here Pytorch was easiest to "optimize". Other frameworks evaluate the train_x twice, once for getting train_y values and once just before the training.
-  - TensorFlow version could be optimized by taking train_y_target (target rewards) wholly inside the graph but it would be complicated to code.  
+  - TensorFlow version could be optimized by taking `train_y_target` (target rewards) wholly inside the graph but it would be complicated to code.  
 
 
 
