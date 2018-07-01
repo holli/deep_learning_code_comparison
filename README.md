@@ -60,6 +60,8 @@ This repository includes sample python codes and notebooks for some common useca
   - https://github.com/holli/deep_learning_code_comparison/blob/master/cats_dogs_finetune/prepare_data.ipynb
 - Pytorch
   - https://github.com/holli/deep_learning_code_comparison/blob/master/cats_dogs_finetune/pytorch.ipynb
+- Fast.ai (Pytorch)
+  - https://github.com/holli/deep_learning_code_comparison/blob/master/cats_dogs_finetune/fastai_pytorch.ipynb
 - Keras and TensorFlow
   - https://github.com/holli/deep_learning_code_comparison/blob/master/cats_dogs_finetune/keras_tf.ipynb
 - Notes
